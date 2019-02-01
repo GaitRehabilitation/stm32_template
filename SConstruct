@@ -4,6 +4,8 @@ env = Environment()
 # Set environment for AVR-GCC.
 env['CC'] = 'arm-none-eabi-gcc'
 env['CXX'] = 'arm-none-eabi-g++'
+env['AS'] = 'arm-none-eabi-as'
+env['CPPPATH'] = [ 'build']
 env['OBJCOPY'] = 'arm-none-eabi-objcopy'
 env['SIZE'] = 'arm-none-eabi-size'
 
@@ -16,13 +18,17 @@ env.Append(CCFLAGS = '-mcpu=' + DEVICE)
 env.Append(CCFLAGS = '-std=gnu99 -g -O2 -Wall -TSTM32F401VCTx_FLASH.ld')
 env.Append(CCFLAGS = '-mlittle-endian -mthumb -mthumb-interwork')
 env.Append(CCFLAGS = '-fsingle-precision-constant -Wdouble-promotion')
-env.Append(CCFLAGS = '-mfpu=fpv4-sp-d16 -mfloat-abi=hard')
+env.Append(CCFLAGS = '-mfpu=fpv4-sp-d16 -mfloat-abi=softfp')
 env.Append(CCFLAGS = '-DUSE_STDPERIPH_DRIVER -DSTM32F401xC')
 
 # Define target name.
 TARGET = 'build/main'
 
 # Define source file.
+startup_stm32f401xc = env.Object(
+    target = 'src/startup_stm32f401xc.o',
+    source = 'src/startup_stm32f401xc.s')
+
 sources = [
     'src/main.c',
     'src/stm32f4xx_it.c' ,
@@ -30,11 +36,6 @@ sources = [
     'src/syscalls.c' ,
     'src/config.c' ,
     'src/led.c',
-    'src/stm32f4xx_hal.c',
-    'src/stm32f4xx_hal_rcc.c',
-    'src/stm32f4xx_hal_gpio.c',
-    'src/stm32f4xx_hal_cortex.c',
-    'src/startup_stm32f401xc.s', 
     Glob('lib/Drivers/STM32F4xx_HAL_Driver/Src/*.c')]
 
 env.Append(CPPPATH=[
